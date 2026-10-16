@@ -3,7 +3,7 @@ import {WORKFLOWS,logisticDeadlines,addWorkingDays,alertLevel,mostUrgent} from '
 export const normalizeReference=value=>String(value??'').trim().toLocaleLowerCase('fr');
 export const hasDuplicateReference=(records,reference,exceptId=null)=>records.some(d=>d.id!==exceptId&&normalizeReference(d.reference)===normalizeReference(reference));
 export const stepDone=(d,step)=>Boolean(d.steps?.[step]);
-export const completed=d=>Boolean(d.steps?.['Intervention réalisée'])||d.archiveReason==='performed';
+export const completed=d=>d.archiveReason==='performed';
 export const nextStep=d=>(WORKFLOWS[d.type]||[]).find(step=>!stepDone(d,step))||'Terminé';
 
 export function caseActions(d,referenceDate){
@@ -30,14 +30,11 @@ export function setStep(d,step,checked,date){
  if(checked)d.steps[step]=date;else delete d.steps[step];
  if(['Sizing envoyé au chirurgien','Sizing validé par le chirurgien'].includes(step))delete d.lastRelance.sizing;
  if(['Devis envoyé','Devis signé'].includes(step))delete d.lastRelance.quote;
- if(step==='Intervention réalisée'){
-  d.archived=checked;
-  if(checked)d.archiveReason='performed';else delete d.archiveReason;
- }
+
  return d;
 }
 export function toggleCancelledArchive(d){
- if(d.archived){d.archived=false;delete d.archiveReason;delete d.steps?.['Intervention réalisée'];}
+ if(d.archived){d.archived=false;delete d.archiveReason;}
  else{d.archived=true;d.archiveReason='cancelled';}
  return d;
 }
