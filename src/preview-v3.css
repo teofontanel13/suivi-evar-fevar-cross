@@ -24,3 +24,9 @@ body:has(.v3){background:#f9f2f3}
 .v3 .cook-medical{font-size:17px;letter-spacing:5px;border-top-color:#ce0d1c}
 .v3 .preview-banner{background:#fce7e9;color:#a20d21}
 .v3 .footer{color:#657789}
+
+.v3-modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(23,36,49,.48);display:flex;align-items:center;justify-content:center;padding:16px}
+.v3-modal{background:white;border-radius:16px;padding:24px;width:min(100%,440px);box-shadow:0 16px 45px rgba(0,0,0,.22)}
+.v3-modal h2{margin-bottom:14px}
+.v3-modal label{margin-top:14px}
+.v3-modal .buttons button{width:auto}
