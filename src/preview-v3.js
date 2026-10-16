@@ -1,0 +1,71 @@
+import './style.css';
+import {WORKFLOWS,logisticDeadlines,addWorkingDays,estimatedDelivery,alertLevel,mostUrgent} from './workflow-v3.js';
+const KEY='suivi-v3-preview-only';
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
+const plus=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return [x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-')};
+const demo=()=>[{id:crypto.randomUUID(),reference:'DEMO-EVAR-001',type:'EVAR',surgery:plus(today(),12),steps:{'Scanner reçu':today(),'Sizing envoyé au chirurgien':plus(today(),-5)},lastRelance:{},notes:'Dossier fictif de démonstration',surgeon:'',hospital:'',enumber:'',archived:false,stents:[]},{id:crypto.randomUUID(),reference:'DEMO-FEVAR-002',type:'FEVAR',surgery:plus(today(),27),steps:{'Scanner reçu':plus(today(),-15),'Scanner envoyé au Planning Center':plus(today(),-14),'Graft plan reçu':plus(today(),-8),'Graft plan signé':plus(today(),-7),'Devis envoyé':plus(today(),-5)},lastRelance:{},notes:'Aucune donnée patient',surgeon:'',hospital:'',enumber:'',archived:false,stents:[]}];
+let records;try{records=JSON.parse(localStorage.getItem(KEY));if(!Array.isArray(records))throw Error()}catch{records=demo()}
+let selected=records[0]?.id||null,kind='all',status='all',counter='',search='',expanded=false,showArchives=false;
+const persist=()=>localStorage.setItem(KEY,JSON.stringify(records));
+const completed=d=>!!d.steps['Intervention réalisée'];
+const stepDone=(d,s)=>!!d.steps[s];
+function actions(d){
+ if(d.archived)return [];
+ const result=[],date=today();
+ if(d.type==='EVAR'&&stepDone(d,'Sizing envoyé au chirurgien')&&!stepDone(d,'Sizing validé par le chirurgien'))result.push({label:'Relancer validation sizing',due:addWorkingDays(d.lastRelance.sizing||d.steps['Sizing envoyé au chirurgien'],3),key:'sizing'});
+ if(d.type!=='EVAR'&&stepDone(d,'Devis envoyé')&&!stepDone(d,'Devis signé'))result.push({label:'Relancer signature devis',due:addWorkingDays(d.lastRelance.quote||d.steps['Devis envoyé'],3),key:'quote'});
+ const deadlines=logisticDeadlines(d.type,d.surgery);
+ if(deadlines&&!stepDone(d,deadlines.action)){
+  const blocked=d.type==='EVAR'&&!stepDone(d,'Sizing validé par le chirurgien');
+  result.push({label:(blocked?'Validation sizing manquante · ':'')+deadlines.action,due:deadlines.reminder,limit:deadlines.limit,key:'logistics'});
+ }
+ return result.map(a=>({...a,level:alertLevel(a.limit&&date>a.limit?a.limit:a.due,date)}));
+}
+const severity=d=>{const a=actions(d);return a.some(x=>x.level==='red')?'red':a.some(x=>x.level==='orange')?'orange':'green'};
+const next=d=>WORKFLOWS[d.type].find(s=>!stepDone(d,s))||'Terminé';
+const waiting=d=>mostUrgent(actions(d),today())?.label||next(d);
+const sorted=ds=>[...ds].sort((a,b)=>(a.surgery||'9999-12-31').localeCompare(b.surgery||'9999-12-31')||({red:0,orange:1,green:2}[severity(a)]-{red:0,orange:1,green:2}[severity(b)]));
+const active=()=>records.filter(d=>!d.archived);
+function update(id,patch){const d=records.find(x=>x.id===id);if(!d)return;Object.assign(d,patch);persist();render()}
+function download(name,text,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function ics(d){
+ if(!d.surgery)return alert('Indique une date.');
+ const dt=d.surgery.replaceAll('-',''),clean=s=>String(s||'').replace(/[\\,;\n]/g,c=>({'\\':'\\\\',',':'\\,',';':'\\;','\n':'\\n'}[c]));
+ let dates;
+ if(!d.time){dates=['DTSTART;VALUE=DATE:'+dt,'DTEND;VALUE=DATE:'+plus(d.surgery,1).replaceAll('-','')]}
+ else{const [h,m]=d.time.split(':').map(Number),end=h*60+m+240;dates=['DTSTART:'+dt+'T'+d.time.replace(':','')+'00','DTEND:'+plus(d.surgery,Math.floor(end/1440)).replaceAll('-','')+'T'+String(Math.floor(end/60)%24).padStart(2,'0')+String(end%60).padStart(2,'0')+'00']}
+ download('intervention-'+d.reference.replace(/[^a-z0-9_-]/gi,'-')+'.ics',['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Suivi V3 Test//FR','BEGIN:VEVENT','UID:'+d.id+'@suivi-v3','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''),...dates,'SUMMARY:'+clean('Intervention '+d.type+' - '+d.reference),'DESCRIPTION:'+clean(d.hospital),'END:VEVENT','END:VCALENDAR'].join('\r\n')+'\r\n','text/calendar');
+}
+function render(){
+ const activeCases=active(),late=activeCases.filter(d=>severity(d)==='red').length,due=activeCases.filter(d=>severity(d)==='orange').length;
+ const shown=sorted(records.filter(d=>d.archived===showArchives&&(kind==='all'||d.type===kind)&&(status==='all'||(status==='done'?completed(d):!completed(d)))&&[d.reference,d.enumber].join(' ').toLowerCase().includes(search)&&(showArchives||!counter||counter==='active'||severity(d)===counter)));
+ $('#app').innerHTML='<div class="shell v3"><header><div><h1>Suivi EVAR / FEVAR / CROSS</h1><p>V3 · Environnement de démonstration indépendant</p></div><span class="preview-banner">MODE TEST · Données fictives, stockées dans ce navigateur</span></header><div class="stats">'+[['red',late,'Dossiers en retard'],['orange',due,"À faire aujourd’hui"],['active',activeCases.length,'Dossiers actifs']].map(([k,n,label])=>'<button class="stat '+(counter===k?'active':'')+'" data-counter="'+k+'"><strong>'+n+'</strong><small>'+label+'</small></button>').join('')+'</div><div class="toolbar"><div class="buttons"><button id="activeTab" class="'+(!showArchives?'active':'')+'">Actifs</button><button id="archiveTab" class="'+(showArchives?'active':'')+'">Archives</button><button id="new" class="primary">+ Nouveau dossier</button></div><div class="buttons"><button id="reset">Réinitialiser la démo</button></div></div><div class="toolbar"><input id="search" placeholder="Recherche référence ou numéro E" value="'+esc(search)+'"><select id="kind"><option value="all">Tous types</option>'+['EVAR','FEVAR','CROSS'].map(t=>'<option '+(kind===t?'selected':'')+'>'+t+'</option>').join('')+'</select><select id="status"><option value="all">Tous statuts</option><option value="pending" '+(status==='pending'?'selected':'')+'>En cours</option><option value="done" '+(status==='done'?'selected':'')+'>Réalisés</option></select></div><div class="layout"><section id="cases">'+shown.map(d=>'<article class="case '+d.type.toLowerCase()+' '+(selected===d.id?'selected':'')+'" data-id="'+d.id+'"><div class="between"><b>'+esc(d.reference)+'</b><span class="pill '+d.type.toLowerCase()+'">'+d.type+'</span></div><div class="between"><small>Intervention : '+esc(d.surgery||'Sans date')+'</small><span class="signal '+severity(d)+'">'+(severity(d)==='red'?'En retard':severity(d)==='orange'?"Aujourd’hui":'À jour')+'</span></div><small>En attente de : '+esc(waiting(d))+'</small></article>').join('')+(shown.length?'':'<p class="empty">Aucun dossier</p>')+'</section><aside class="panel" id="detail"></aside></div><p class="footer">Aucune connexion Supabase · Aucun dossier réel consulté ou modifié. Version de test locale au navigateur.</p></div>';
+ document.querySelectorAll('[data-counter]').forEach(e=>e.onclick=()=>{counter=counter===e.dataset.counter?'':e.dataset.counter;showArchives=false;render()});
+ $('#activeTab').onclick=()=>{showArchives=false;counter='';selected=null;render()};
+ $('#archiveTab').onclick=()=>{showArchives=true;counter='';selected=null;render()};
+ $('#new').onclick=()=>{const reference=prompt('Référence interne (sans données patient) :');if(!reference?.trim())return;const type=(prompt('Type : EVAR, FEVAR ou CROSS','EVAR')||'').toUpperCase();if(!WORKFLOWS[type])return alert('Type invalide');const d={id:crypto.randomUUID(),reference:reference.trim(),type,surgery:'',time:'',steps:{},lastRelance:{},notes:'',surgeon:'',hospital:'',enumber:'',archived:false,stents:[]};records.unshift(d);selected=d.id;showArchives=false;persist();render()};
+ $('#reset').onclick=()=>{if(confirm('Effacer les dossiers de test et restaurer les exemples ?')){records=demo();selected=records[0].id;persist();render()}};
+ $('#search').oninput=e=>{search=e.target.value.toLowerCase();const caret=e.target.selectionStart;render();$('#search').focus();$('#search').setSelectionRange(caret,caret)};
+ $('#kind').onchange=e=>{kind=e.target.value;render()};$('#status').onchange=e=>{status=e.target.value;render()};
+ document.querySelectorAll('.case').forEach(e=>e.onclick=()=>{selected=e.dataset.id;expanded=false;render()});
+ detail();
+}
+function detail(){
+ const d=records.find(x=>x.id===selected),el=$('#detail');if(!d){el.innerHTML='<p class="empty">Sélectionne un dossier.</p>';return}
+ const main=mostUrgent(actions(d),today()),estimate=d.steps['Devis signé']?estimatedDelivery(d.steps['Devis signé']):null;
+ el.innerHTML='<div class="between"><h2>'+esc(d.reference)+'</h2><span class="pill '+d.type.toLowerCase()+'">'+d.type+'</span></div><div class="notice">Prochaine action : <b>'+esc(main?.label||next(d))+'</b>'+(main?.due?' · '+main.due:'')+'</div><div class="fields">'+field('Référence','reference',d.reference)+field('Date intervention','surgery',d.surgery,'date')+field('Heure (facultative)','time',d.time,'time')+field('Numéro E','enumber',d.enumber)+field('Chirurgien','surgeon',d.surgeon)+field('Établissement','hospital',d.hospital)+'</div><label>Note générale</label><textarea data-field="notes">'+esc(d.notes)+'</textarea>'+(estimate?'<p>Livraison estimée (non confirmée) : <b>'+estimate+'</b>'+(d.surgery&&d.surgery<estimate?' · Intervention avant livraison estimée':'')+'</p>':'')+'<div class="section"><h2>Workflow</h2><p><b>Étape en cours :</b> '+esc(next(d))+'</p><p><b>Étape suivante :</b> '+esc(WORKFLOWS[d.type][WORKFLOWS[d.type].indexOf(next(d))+1]||'—')+'</p><button id="expand">'+(expanded?'Masquer':'Afficher')+' toutes les étapes</button><div id="steps">'+(expanded?WORKFLOWS[d.type].map(s=>'<div class="step"><input type="checkbox" data-step="'+esc(s)+'" '+(stepDone(d,s)?'checked':'')+'><div style="flex:1"><span>'+esc(s)+'</span>'+(stepDone(d,s)?'<input type="date" data-date="'+esc(s)+'" value="'+d.steps[s]+'" title="Modifier la date de validation">':'')+'</div></div>').join(''):'')+'</div></div><div class="section"><h2>Relances</h2>'+actions(d).filter(a=>a.key!=='logistics').map(a=>'<div class="action">'+esc(a.label)+' · '+a.due+'<div class="buttons"><button data-relance="'+a.key+'">Relance effectuée</button>'+(d.lastRelance[a.key]?'<input type="date" data-relancedate="'+a.key+'" value="'+d.lastRelance[a.key]+'">':'')+'</div></div>').join('')+'</div>'+(d.type!=='EVAR'?'<div class="section"><h2>Stents implantés (postop)</h2><div id="stents">'+(d.stents||[]).map((s,i)=>'<p>'+esc(s.artery)+' · '+esc(s.model)+' · '+esc(s.size)+' <button data-remove-stent="'+i+'">×</button></p>').join('')+'</div><button id="addStent">+ Ajouter un stent</button></div>':'')+'<div class="section buttons"><button id="calendar">Exporter Outlook</button><button id="archive">'+(d.archived?'Réactiver': 'Archiver comme annulée')+'</button><button id="delete" class="danger">Supprimer définitivement</button></div>';
+ el.querySelectorAll('[data-field]').forEach(e=>e.onchange=()=>update(d.id,{[e.dataset.field]:e.value}));
+ $('#expand').onclick=()=>{expanded=!expanded;detail()};
+ el.querySelectorAll('[data-step]').forEach(e=>e.onchange=()=>{if(e.checked)d.steps[e.dataset.step]=today();else delete d.steps[e.dataset.step];if(e.dataset.step==='Intervention réalisée'){d.archived=e.checked;if(e.checked){showArchives=true;selected=null}}persist();render()});
+ el.querySelectorAll('[data-date]').forEach(e=>e.onchange=()=>{if(e.value)d.steps[e.dataset.date]=e.value;persist();render()});
+ el.querySelectorAll('[data-relance]').forEach(e=>e.onclick=()=>{d.lastRelance[e.dataset.relance]=today();persist();render()});
+ el.querySelectorAll('[data-relancedate]').forEach(e=>e.onchange=()=>{d.lastRelance[e.dataset.relancedate]=e.value;persist();render()});
+ $('#calendar').onclick=()=>ics(d);
+ $('#archive').onclick=()=>{d.archived=!d.archived;if(!d.archived)delete d.steps['Intervention réalisée'];persist();selected=null;render()};
+ $('#delete').onclick=()=>{if(confirm('Supprimer définitivement ce dossier de test ?')){records=records.filter(x=>x.id!==d.id);selected=null;persist();render()}};
+ if($('#addStent'))$('#addStent').onclick=()=>{const options=d.type==='CROSS'?'TABC,CCG,SCG':'TC,AMS,ARD,ARG';const artery=prompt('Artère ('+options+') :');if(!artery)return;const model=prompt('Marque et modèle :');if(!model)return;const size=prompt('Diamètre × longueur en mm :');d.stents.push({artery,model,size:size||''});persist();render()};
+ el.querySelectorAll('[data-remove-stent]').forEach(e=>e.onclick=()=>{d.stents.splice(Number(e.dataset.removeStent),1);persist();render()});
+}
+function field(label,name,value,type='text'){return '<div><label>'+label+'</label><input data-field="'+name+'" type="'+type+'" value="'+esc(value||'')+'"></div>'}
+persist();render();
