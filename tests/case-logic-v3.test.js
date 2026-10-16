@@ -84,3 +84,11 @@ test('priorities sort late actions first; dated cases before undated',()=>{
  assert.equal(caseSeverity(red,'2026-11-10'),'red');
  assert.equal(caseSeverity(green,'2026-11-10'),'green');
 });
+
+test('next action follows workflow even when ancillary reminder is more urgent',()=>{
+ const d=base('FEVAR');d.surgery='2026-12-25';
+ d.steps['Scanner reçu']='2026-10-16';
+ d.steps['Scanner envoyé au Planning Center']='2026-10-16';
+ assert.equal(caseWaiting(d,'2026-11-25'),'Graft plan reçu');
+ assert.equal(caseActions(d,'2026-11-25').some(a=>a.key==='logistics'),true);
+});
