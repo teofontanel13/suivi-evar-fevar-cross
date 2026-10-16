@@ -25,4 +25,4 @@ export function previousWorkingDay(date){if(!date)return null;let result=date;wh
 export function logisticDeadlines(type,surgeryDate){const rule=DEADLINES[type];if(!rule||!surgeryDate)return null;return {action:rule.action,reminder:previousWorkingDay(shift(surgeryDate,-rule.reminder)),limit:previousWorkingDay(shift(surgeryDate,-rule.limit))}}
 export const estimatedDelivery = signedQuoteDate => signedQuoteDate?shift(signedQuoteDate,42):null;
 export function alertLevel(dueDate,referenceDate){if(!dueDate)return 'green';const current=referenceDate||formatDate(new Date());return dueDate<current?'red':dueDate===current?'orange':'green'}
-export function mostUrgent(actions,referenceDate){const rank={red:0,orange:1,green:2};return [...actions].sort((a,b)=>rank[alertLevel(a.due,referenceDate)]-rank[alertLevel(b.due,referenceDate)]||(a.due||'9999').localeCompare(b.due||'9999'))[0]||null}
+export function mostUrgent(actions,referenceDate){const rank={red:0,orange:1,green:2};return [...actions].sort((a,b)=>rank[a.level||alertLevel(a.due,referenceDate)]-rank[b.level||alertLevel(b.due,referenceDate)]||(a.due||'9999').localeCompare(b.due||'9999'))[0]||null}
