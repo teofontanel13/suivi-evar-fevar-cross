@@ -1,9 +1,9 @@
 // V3 — règles métier indépendantes de l'interface et de Supabase.
 // Dates locales au format YYYY-MM-DD pour éviter les décalages UTC.
 export const WORKFLOWS = Object.freeze({
-  EVAR: ['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien','UOR envoyé','Intervention réalisée'],
-  FEVAR: ['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés','Intervention réalisée'],
-  CROSS: ['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés','Intervention réalisée']
+  EVAR: ['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien','UOR envoyé'],
+  FEVAR: ['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés'],
+  CROSS: ['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés']
 });
 export const DEADLINES = Object.freeze({EVAR:{action:'UOR envoyé',reminder:14,limit:7},FEVAR:{action:'Ancillaires envoyés',reminder:30,limit:21},CROSS:{action:'Ancillaires envoyés',reminder:30,limit:21}});
 const parseDate = date => {const [y,m,d]=date.split('-').map(Number);return new Date(y,m-1,d,12)};
