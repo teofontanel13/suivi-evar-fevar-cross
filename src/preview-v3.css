@@ -13,3 +13,14 @@ body:has(.v3){background:#b90925}
 .v3 .footer{color:#ffe0e5;text-align:center}
 .v3 .stat,.v3 .panel,.v3 .case{box-shadow:0 5px 15px rgba(40,0,10,.1)}
 @media(max-width:700px){.v3 header{display:flex;align-items:center}.v3 .preview-banner{margin-top:0}}
+
+/* Ajustement : fond rouge très pâle, proche de la luminosité du bleu V2. */
+body:has(.v3){background:#f9f2f3}
+.v3 header{color:#21384a;padding:18px 12px 10px;gap:8px}
+.v3 header h1{color:#21384a}
+.v3 header p{color:#657789}
+.v3 .cook-brand{color:#ce0d1c;border-color:#ce0d1c;width:min(230px,70vw);padding:7px 12px 5px}
+.v3 .cook-wordmark{font-size:clamp(36px,5vw,52px)}
+.v3 .cook-medical{font-size:17px;letter-spacing:5px;border-top-color:#ce0d1c}
+.v3 .preview-banner{background:#fce7e9;color:#a20d21}
+.v3 .footer{color:#657789}
