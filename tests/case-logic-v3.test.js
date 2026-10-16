@@ -55,32 +55,24 @@ test('no surgery date means no logistic alert; changing surgery date recalculate
  assert.equal(caseActions(d,'2026-10-16')[0].due,'2026-11-06');
 });
 
-test('performed intervention auto archives and clears all reminders',()=>{
- const d=base('FEVAR');d.steps['Devis envoyé']='2026-10-01';
- setStep(d,'Intervention réalisée',true,'2026-11-16');
- assert.equal(d.archived,true);assert.equal(d.archiveReason,'performed');
- assert.equal(completed(d),true);assert.deepEqual(caseActions(d,'2026-11-20'),[]);
- assert.equal(caseWaiting(d,'2026-11-20'),'Intervention réalisée');
+test('completed status is derived from the archive state, not a checkbox',()=>{
+ const d=base('FEVAR');d.surgery='2026-10-01';
+ assert.equal(completed(d),false);
+ d.archived=true;d.archiveReason='performed';
+ assert.equal(completed(d),true);
+ assert.deepEqual(caseActions(d,'2026-10-16'),[]);
+ assert.equal(caseWaiting(d,'2026-10-16'),'Intervention réalisée');
 });
 
-test('reopen performed case and cancelled case preserves other steps',()=>{
+test('cancelled archive can be reopened without losing steps',()=>{
  const d=base('FEVAR');d.steps['Devis envoyé']='2026-10-01';
- setStep(d,'Intervention réalisée',true,'2026-11-16');
  toggleCancelledArchive(d);
- assert.equal(d.archived,false);assert.equal(d.archiveReason,undefined);
- assert.equal(d.steps['Intervention réalisée'],undefined);
- assert.equal(d.steps['Devis envoyé'],'2026-10-01');
- toggleCancelledArchive(d);
- assert.equal(d.archiveReason,'cancelled');assert.deepEqual(caseActions(d,'2026-11-20'),[]);
+ assert.equal(d.archiveReason,'cancelled');
+ assert.deepEqual(caseActions(d,'2026-11-20'),[]);
  toggleCancelledArchive(d);
  assert.equal(d.archived,false);
+ assert.equal(d.archiveReason,undefined);
  assert.equal(d.steps['Devis envoyé'],'2026-10-01');
-});
-
-test('unchecking performed step reactivates without losing history',()=>{
- const d=base();setStep(d,'Intervention réalisée',true,'2026-11-16');
- setStep(d,'Intervention réalisée',false,'2026-11-17');
- assert.equal(d.archived,false);assert.equal(d.archiveReason,undefined);
  assert.equal(nextStep(d),'Scanner reçu');
 });
 
