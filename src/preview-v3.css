@@ -1,0 +1,32 @@
+.v3 .preview-banner{background:#fff0dc;color:#8a4808;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700}.v3 .stat{text-align:left;cursor:pointer}.v3 .stat.active{outline:2px solid #176a94}.v3 .signal{font-size:11px;border-radius:6px;padding:4px 7px}.v3 .signal.red{background:#fee2e2;color:#991b1b}.v3 .signal.orange{background:#ffedd5;color:#9a3412}.v3 .signal.green{background:#dcfce7;color:#166534}.v3 .case{padding:12px;margin-bottom:6px}.v3 .case small{margin:5px 0}.v3 .step{align-items:start}.v3 .step input[type=date]{margin-top:5px;max-width:160px;padding:4px;font-size:12px}.v3 .action .buttons{margin-top:8px}.v3 .action input[type=date]{max-width:160px}.v3 .notice{margin-top:8px}.v3 .toolbar>input{flex:1;min-width:200px}.v3 .toolbar>select{width:auto}.v3 .section button{margin-top:7px}@media(max-width:700px){.v3 header{display:block}.v3 .preview-banner{display:inline-block;margin-top:12px}}
+/* Identité visuelle V3 : rouge Cook et marque centrée en haut de l'application. */
+body:has(.v3){background:#b90925}
+.v3{max-width:1240px}
+.v3 header{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px;margin:0 0 24px;padding:30px 18px 14px;color:#fff}
+.v3 header h1{font-size:22px;color:#fff}
+.v3 header p{color:#ffe0e5}
+.v3 .cook-brand{width:min(290px,80vw);border:3px solid #fff;padding:10px 16px 6px;color:#fff;line-height:1}
+.v3 .cook-wordmark{font-family:Georgia,'Times New Roman',serif;font-size:clamp(42px,6vw,65px);letter-spacing:1px;position:relative}
+.v3 .cook-registered{font-family:Arial,sans-serif;font-size:12px;position:absolute;top:7px;margin-left:2px}
+.v3 .cook-medical{font-family:Arial,sans-serif;font-weight:700;font-size:22px;letter-spacing:7px;text-align:right;margin-top:5px;border-top:2px solid #fff;padding-top:5px}
+.v3 .preview-banner{background:#fff;color:#9e0821}
+.v3 .footer{color:#ffe0e5;text-align:center}
+.v3 .stat,.v3 .panel,.v3 .case{box-shadow:0 5px 15px rgba(40,0,10,.1)}
+@media(max-width:700px){.v3 header{display:flex;align-items:center}.v3 .preview-banner{margin-top:0}}
+
+/* Ajustement : fond rouge très pâle, proche de la luminosité du bleu V2. */
+body:has(.v3){background:#f9f2f3}
+.v3 header{color:#21384a;padding:18px 12px 10px;gap:8px}
+.v3 header h1{color:#21384a}
+.v3 header p{color:#657789}
+.v3 .cook-brand{color:#ce0d1c;border-color:#ce0d1c;width:min(230px,70vw);padding:7px 12px 5px}
+.v3 .cook-wordmark{font-size:clamp(36px,5vw,52px)}
+.v3 .cook-medical{font-size:17px;letter-spacing:5px;border-top-color:#ce0d1c}
+.v3 .preview-banner{background:#fce7e9;color:#a20d21}
+.v3 .footer{color:#657789}
+
+.v3-modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(23,36,49,.48);display:flex;align-items:center;justify-content:center;padding:16px}
+.v3-modal{background:white;border-radius:16px;padding:24px;width:min(100%,440px);box-shadow:0 16px 45px rgba(0,0,0,.22)}
+.v3-modal h2{margin-bottom:14px}
+.v3-modal label{margin-top:14px}
+.v3-modal .buttons button{width:auto}
