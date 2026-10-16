@@ -12,21 +12,31 @@ else {
   const {data,error}=await sb.from('v3_cases').select('id,reference,payload').order('updated_at',{ascending:false});
   if(error){root.innerHTML='<div class="login"><h2>Base V3 non disponible</h2><p id="dbError"></p><button id="retry">Réessayer</button><button id="logout">Déconnexion</button></div>';document.querySelector('#dbError').textContent=error.message;document.querySelector('#retry').onclick=load;document.querySelector('#logout').onclick=async()=>{await sb.auth.signOut();login()};return}
   const initial=(data||[]).map(x=>({...x.payload,id:x.id,reference:x.reference}));
-  let saved=new Set(initial.map(x=>x.id)),queue=Promise.resolve();
+  let saved=new Set(initial.map(x=>x.id)),queue=Promise.resolve(),revision=0;
+  const syncStatus=document.createElement('div');
+  syncStatus.id='v3-sync-status';
+  syncStatus.setAttribute('role','status');
+  syncStatus.setAttribute('aria-live','polite');
+  syncStatus.style.cssText='position:fixed;bottom:12px;left:12px;z-index:1001;background:white;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;box-shadow:0 2px 10px #00000012';
+  syncStatus.textContent='Dossiers chargés · Synchronisé';
+  document.body.append(syncStatus);
+  const setSync=(message,failed=false)=>{syncStatus.textContent=message;syncStatus.style.color=failed?'#b42318':'#176a52'};
   window.__V3_WORK__={records:initial,save(records){
-    const snapshot=structuredClone(records);
+    const snapshot=structuredClone(records),current=++revision;
+    setSync('Enregistrement…');
     queue=queue.then(async()=>{
       const now=new Set(snapshot.map(d=>d.id));
       const removed=[...saved].filter(id=>!now.has(id));
       if(removed.length){const {error}=await sb.from('v3_cases').delete().in('id',removed);if(error)throw error}
       if(snapshot.length){const {error}=await sb.from('v3_cases').upsert(snapshot.map(d=>({id:d.id,owner_id:user.id,reference:d.reference,payload:d,updated_at:new Date().toISOString()})),{onConflict:'id'});if(error)throw error}
       saved=now;
-    }).catch(error=>{root.dataset.syncError='true';alert('Échec de sauvegarde Supabase : '+error.message+' — ne fermez pas cette page avant résolution.');});
+      if(current===revision)setSync('Sauvegardé ✓');
+    }).catch(error=>{root.dataset.syncError='true';setSync('Échec de sauvegarde · '+error.message,true);alert('Échec de sauvegarde Supabase : '+error.message+' — ne fermez pas cette page avant résolution.');throw error;});
     return queue;
   }};
   await import('./preview-v3.js');
   const bar=document.createElement('div');bar.style.cssText='position:fixed;bottom:10px;right:12px;z-index:1000;background:white;padding:8px 12px;border:1px solid #ddd;border-radius:8px';bar.innerHTML='<button id="workLogout">Déconnexion</button>';document.body.append(bar);
-  document.querySelector('#workLogout').onclick=async()=>{await queue;await sb.auth.signOut();location.reload()};
+  document.querySelector('#workLogout').onclick=async()=>{try{await queue}catch{return}await sb.auth.signOut();location.reload()};
  }
  const {data:{session}}=await sb.auth.getSession();if(session)await load();else login();
 }
