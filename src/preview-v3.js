@@ -1,4 +1,5 @@
 import './style.css';
+import './preview-v3.css';
 import {WORKFLOWS,logisticDeadlines,addWorkingDays,estimatedDelivery,alertLevel,mostUrgent} from './workflow-v3.js';
 const KEY='suivi-v3-preview-only';
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
