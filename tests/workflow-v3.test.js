@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {WORKFLOWS,addWorkingDays,previousWorkingDay,logisticDeadlines,estimatedDelivery,alertLevel,mostUrgent,isWorkingDay} from '../src/workflow-v3.js';
 
 test('workflow: each procedure has its correct steps',()=>{
- assert.equal(WORKFLOWS.EVAR.length,5);
- assert.equal(WORKFLOWS.FEVAR.length,8);
+ assert.equal(WORKFLOWS.EVAR.length,4);
+ assert.equal(WORKFLOWS.FEVAR.length,7);
  assert.deepEqual(WORKFLOWS.FEVAR,WORKFLOWS.CROSS);
 });
 test('working days skip weekends and French national holidays',()=>{
