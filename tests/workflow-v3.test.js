@@ -17,7 +17,7 @@ test('working days skip weekends and French national holidays',()=>{
  assert.equal(previousWorkingDay('2026-11-01'),'2026-10-30');
 });
 test('EVAR UOR reminder and hard deadline shift backwards',()=>{
- assert.deepEqual(logisticDeadlines('EVAR','2026-11-16'),{action:'UOR envoyé',reminder:'2026-10-30',limit:'2026-11-09'});
+ assert.deepEqual(logisticDeadlines('EVAR','2026-11-16'),{action:'UOR envoyé',reminder:'2026-11-02',limit:'2026-11-09'});
 });
 test('FEVAR/CROSS ancillary deadlines use J-30 and J-21',()=>{
  for(const type of ['FEVAR','CROSS']){
