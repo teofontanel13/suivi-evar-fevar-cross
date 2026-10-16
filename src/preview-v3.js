@@ -71,8 +71,27 @@ function detail(){
  $('#calendar').onclick=()=>ics(d);
  $('#archive').onclick=()=>{d.archived=!d.archived;if(!d.archived){delete d.steps['Intervention réalisée'];delete d.archiveReason;showArchives=false}else{d.archiveReason='cancelled';showArchives=true}status='all';kind='all';search='';counter='';persist();selected=d.id;expanded=false;render()};
  $('#delete').onclick=()=>{if(confirm('Supprimer définitivement ce dossier de test ?')){records=records.filter(x=>x.id!==d.id);selected=null;persist();render()}};
- if($('#addStent'))$('#addStent').onclick=()=>{const options=d.type==='CROSS'?'TABC,CCG,SCG':'TC,AMS,ARD,ARG';const artery=prompt('Artère ('+options+') :');if(!artery)return;const model=prompt('Marque et modèle :');if(!model)return;const size=prompt('Diamètre × longueur en mm :');d.stents.push({artery,model,size:size||''});persist();render()};
- el.querySelectorAll('[data-remove-stent]').forEach(e=>e.onclick=()=>{d.stents.splice(Number(e.dataset.removeStent),1);persist();render()});
+ if($('#addStent'))$('#addStent').onclick=()=>{
+  const overlay=document.createElement('div');overlay.className='v3-modal-overlay';
+  const arteries=d.type==='CROSS'?['TABC','CCG','SCG']:['TC','AMS','ARD','ARG'];
+  overlay.innerHTML='<form class="v3-modal"><h2>Ajouter un stent implanté</h2><label for="stent-artery">Artère</label><select id="stent-artery" required>'+arteries.map(a=>'<option value="'+a+'">'+a+'</option>').join('')+'</select><label for="stent-model">Marque et modèle</label><input id="stent-model" required maxlength="120" autocomplete="off"><label for="stent-diameter">Diamètre (mm)</label><input id="stent-diameter" type="number" min="1" max="100" step="0.1" required><label for="stent-length">Longueur (mm)</label><input id="stent-length" type="number" min="1" max="300" step="0.1" required><div class="buttons" style="justify-content:flex-end;margin-top:18px"><button type="button" id="cancel-stent">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form>';
+  document.body.appendChild(overlay);
+  overlay.querySelector('#stent-model').focus();
+  overlay.querySelector('#cancel-stent').onclick=()=>overlay.remove();
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};
+  overlay.querySelector('form').onsubmit=e=>{
+    e.preventDefault();
+    const artery=overlay.querySelector('#stent-artery').value;
+    const model=overlay.querySelector('#stent-model').value.trim();
+    const diameter=Number(overlay.querySelector('#stent-diameter').value);
+    const length=Number(overlay.querySelector('#stent-length').value);
+    if(!arteries.includes(artery)||!model||!Number.isFinite(diameter)||!Number.isFinite(length)||diameter<=0||length<=0)return;
+    d.stents??=[];
+    d.stents.push({artery,model,size:diameter+' × '+length+' mm'});
+    persist();overlay.remove();render();
+  };
+ };
+ el.querySelectorAll('[data-remove-stent]').forEach(e=>e.onclick=()=>{if(confirm('Supprimer ce stent implanté ?')){d.stents.splice(Number(e.dataset.removeStent),1);persist();render()}});
 }
 function field(label,name,value,type='text'){return '<div><label>'+label+'</label><input data-field="'+name+'" type="'+type+'" value="'+esc(value||'')+'"'+(['surgeon','hospital'].includes(name)?' list="choices-'+name+'" autocomplete="off"':'')+'></div>'}
 persist();render();
