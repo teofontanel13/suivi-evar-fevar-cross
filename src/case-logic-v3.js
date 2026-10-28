@@ -9,11 +9,15 @@ export const nextStep=d=>(WORKFLOWS[d.type]||[]).find(step=>!stepDone(d,step))||
 export function caseActions(d,referenceDate){
  if(d.archived)return [];
  const result=[];
- if(d.type==='EVAR'&&stepDone(d,'Sizing envoyé au chirurgien')&&!stepDone(d,'Sizing validé par le chirurgien')){
-  result.push({label:'Relancer validation sizing',due:addWorkingDays(d.lastRelance?.sizing||d.steps['Sizing envoyé au chirurgien'],3),key:'sizing'});
- }
- if(['FEVAR','CROSS'].includes(d.type)&&stepDone(d,'Devis envoyé')&&!stepDone(d,'Devis signé')){
-  result.push({label:'Relancer signature devis',due:addWorkingDays(d.lastRelance?.quote||d.steps['Devis envoyé'],3),key:'quote'});
+ const workflow=WORKFLOWS[d.type]||[];
+ for(let i=1;i<workflow.length;i++){
+  const previous=workflow[i-1],step=workflow[i];
+  if(!stepDone(d,previous)||stepDone(d,step))continue;
+  const legacyKey=d.type==='EVAR'&&step==='Sizing validé par le chirurgien'?'sizing':step==='Devis signé'?'quote':null;
+  const key='step:'+step;
+  const last=d.lastRelance?.[key]||(legacyKey?d.lastRelance?.[legacyKey]:null);
+  const label=legacyKey==='sizing'?'Relancer validation sizing':legacyKey==='quote'?'Relancer signature devis':'Relancer : '+step;
+  result.push({label,due:addWorkingDays(last||d.steps[previous],3),key});
  }
  const deadlines=logisticDeadlines(d.type,d.surgery);
  if(deadlines&&!stepDone(d,deadlines.action)){
@@ -28,6 +32,12 @@ export const sortedCases=(records,date)=>[...records].sort((a,b)=>(a.surgery||'9
 export function setStep(d,step,checked,date){
  d.steps??={};d.lastRelance??={};
  if(checked)d.steps[step]=date;else delete d.steps[step];
+ const workflow=WORKFLOWS[d.type]||[];
+ const index=workflow.indexOf(step);
+ if(index>=0){
+  delete d.lastRelance['step:'+step];
+  if(index+1<workflow.length)delete d.lastRelance['step:'+workflow[index+1]];
+ }
  if(['Sizing envoyé au chirurgien','Sizing validé par le chirurgien'].includes(step))delete d.lastRelance.sizing;
  if(['Devis envoyé','Devis signé'].includes(step))delete d.lastRelance.quote;
 
