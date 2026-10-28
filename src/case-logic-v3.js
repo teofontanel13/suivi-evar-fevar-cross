@@ -12,7 +12,7 @@ export function caseActions(d,referenceDate){
  const workflow=WORKFLOWS[d.type]||[];
  for(let i=1;i<workflow.length;i++){
   const previous=workflow[i-1],step=workflow[i];
-  if(d.type==='EVAR'&&step==='UOR envoyé')continue;
+  if((d.type==='EVAR'&&step==='UOR envoyé')||(['FEVAR','CROSS'].includes(d.type)&&step==='Ancillaires envoyés'))continue;
   if(!stepDone(d,previous)||stepDone(d,step))continue;
   const legacyKey=d.type==='EVAR'&&step==='Sizing validé par le chirurgien'?'sizing':step==='Devis signé'?'quote':null;
   const key='step:'+step;
