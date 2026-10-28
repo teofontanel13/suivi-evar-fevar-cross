@@ -8,6 +8,12 @@ export const nextStep=d=>(WORKFLOWS[d.type]||[]).find(step=>!stepDone(d,step))||
 
 export function caseActions(d,referenceDate){
  if(d.archived)return [];
+ if(d.standbySince){
+  const start=d.lastRelance?.standby||d.standbySince;
+  const dt=new Date(start+'T12:00:00');dt.setDate(dt.getDate()+20);
+  const due=[dt.getFullYear(),String(dt.getMonth()+1).padStart(2,'0'),String(dt.getDate()).padStart(2,'0')].join('-');
+  return [{label:'Demander des nouvelles au chirurgien (stand-by)',due,key:'standby',level:alertLevel(due,referenceDate),hardLimitReached:false}];
+ }
  const result=[];
  const workflow=WORKFLOWS[d.type]||[];
  for(let i=1;i<workflow.length;i++){
@@ -28,7 +34,7 @@ export function caseActions(d,referenceDate){
  return result.map(a=>({...a,level:alertLevel(a.due,referenceDate),hardLimitReached:Boolean(a.limit&&referenceDate>a.limit)}));
 }
 export const caseSeverity=(d,date)=>{const actions=caseActions(d,date);return actions.some(a=>a.key==='logistics'&&a.hardLimitReached)?'red':actions.some(a=>a.key!=='logistics'&&a.level!=='green')?'orange':actions.some(a=>a.key==='logistics'&&a.level!=='green')?'orange':'green'};
-export const caseWaiting=(d,date)=>d.archived?(d.archiveReason==='cancelled'?'Intervention annulée':'Intervention réalisée'):nextStep(d);
+export const caseWaiting=(d,date)=>d.standbySince&&!d.archived?'Stand-by · suivi chirurgien':d.archived?(d.archiveReason==='cancelled'?'Intervention annulée':'Intervention réalisée'):nextStep(d);
 export const sortedCases=(records,date)=>[...records].sort((a,b)=>(a.surgery||'9999-12-31').localeCompare(b.surgery||'9999-12-31')||({red:0,orange:1,green:2}[caseSeverity(a,date)]-{red:0,orange:1,green:2}[caseSeverity(b,date)]));
 export function setStep(d,step,checked,date){
  d.steps??={};d.lastRelance??={};
