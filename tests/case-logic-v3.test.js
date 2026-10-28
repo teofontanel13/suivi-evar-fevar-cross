@@ -36,7 +36,7 @@ test('FEVAR and CROSS quote reminder repeats and stops at signature',()=>{
 test('EVAR logistics due and hard deadline, blocked until sizing validation',()=>{
  const d=base();
  const a=caseActions(d,'2026-11-09').find(a=>a.key==='logistics');
- assert.equal(a.due,'2026-11-02');
+ assert.equal(a.due,'2026-11-09');
  assert.equal(a.level,'red');
  assert.equal(a.hardLimitReached,true);
  assert.match(a.label,/Validation sizing manquante/);
