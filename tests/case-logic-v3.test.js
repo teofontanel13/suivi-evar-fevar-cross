@@ -14,22 +14,22 @@ test('references unique regardless of whitespace, case, archives and editing sam
 
 test('EVAR sizing reminders repeat every three working days and stop at validation',()=>{
  const d=base();d.steps['Sizing envoyé au chirurgien']='2026-10-16';
- assert.equal(caseActions(d,'2026-10-21').find(a=>a.key==='sizing').level,'orange');
+ assert.equal(caseActions(d,'2026-10-21').find(a=>a.key==='step:Sizing validé par le chirurgien').level,'orange');
  d.lastRelance.sizing='2026-10-21';
- assert.equal(caseActions(d,'2026-10-22').find(a=>a.key==='sizing').due,'2026-10-26');
+ assert.equal(caseActions(d,'2026-10-22').find(a=>a.key==='step:Sizing validé par le chirurgien').due,'2026-10-26');
  setStep(d,'Sizing validé par le chirurgien',true,'2026-10-22');
- assert.equal(caseActions(d,'2026-10-22').some(a=>a.key==='sizing'),false);
+ assert.equal(caseActions(d,'2026-10-22').some(a=>a.key==='step:Sizing validé par le chirurgien'),false);
  assert.equal(d.lastRelance.sizing,undefined);
 });
 
 test('FEVAR and CROSS quote reminder repeats and stops at signature',()=>{
  for(const type of ['FEVAR','CROSS']){
   const d=base(type);d.steps['Devis envoyé']='2026-10-16';
-  assert.equal(caseActions(d,'2026-10-22').find(a=>a.key==='quote').level,'red');
+  assert.equal(caseActions(d,'2026-10-22').find(a=>a.key==='step:Devis signé').level,'red');
   d.lastRelance.quote='2026-10-22';
-  assert.equal(caseActions(d,'2026-10-22').find(a=>a.key==='quote').due,'2026-10-27');
+  assert.equal(caseActions(d,'2026-10-22').find(a=>a.key==='step:Devis signé').due,'2026-10-27');
   setStep(d,'Devis signé',true,'2026-10-23');
-  assert.equal(caseActions(d,'2026-10-23').some(a=>a.key==='quote'),false);
+  assert.equal(caseActions(d,'2026-10-23').some(a=>a.key==='step:Devis signé'),false);
  }
 });
 
@@ -43,16 +43,16 @@ test('EVAR logistics due and hard deadline, blocked until sizing validation',()=
  setStep(d,'Sizing validé par le chirurgien',true,'2026-11-09');
  assert.doesNotMatch(caseActions(d,'2026-11-09').find(a=>a.key==='logistics').label,/manquante/);
  setStep(d,'UOR envoyé',true,'2026-11-09');
- assert.equal(caseActions(d,'2026-11-09').length,0);
+ assert.equal(caseActions(d,'2026-11-09').some(a=>a.key==='logistics'),false);
 });
 
 test('no surgery date means no logistic alert; changing surgery date recalculates',()=>{
  const d=base('FEVAR');d.surgery='';
  assert.equal(caseActions(d,'2026-10-16').length,0);
  d.surgery='2026-12-01';
- assert.equal(caseActions(d,'2026-10-16')[0].due,'2026-10-30');
+ assert.equal(caseActions(d,'2026-10-16').find(a=>a.key==='logistics').due,'2026-10-30');
  d.surgery='2026-12-08';
- assert.equal(caseActions(d,'2026-10-16')[0].due,'2026-11-06');
+ assert.equal(caseActions(d,'2026-10-16').find(a=>a.key==='logistics').due,'2026-11-06');
 });
 
 test('completed status is derived from the archive state, not a checkbox',()=>{
@@ -91,4 +91,20 @@ test('next action follows workflow even when ancillary reminder is more urgent',
  d.steps['Scanner envoyé au Planning Center']='2026-10-16';
  assert.equal(caseWaiting(d,'2026-11-25'),'Graft plan reçu');
  assert.equal(caseActions(d,'2026-11-25').some(a=>a.key==='logistics'),true);
+});
+
+test('each workflow transition starts a three-working-day reminder, then resets after a relance',()=>{
+ for(const type of ['EVAR','FEVAR','CROSS']){
+  const d=base(type);d.surgery='';
+  const steps=type==='EVAR'?['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien','UOR envoyé']:['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés'];
+  for(let i=1;i<steps.length;i++){
+   setStep(d,steps[i-1],true,'2026-10-16');
+   const key='step:'+steps[i];
+   assert.equal(caseActions(d,'2026-10-21').find(a=>a.key===key)?.due,'2026-10-21');
+   d.lastRelance[key]='2026-10-21';
+   assert.equal(caseActions(d,'2026-10-22').find(a=>a.key===key)?.due,'2026-10-26');
+   setStep(d,steps[i],true,'2026-10-22');
+   assert.equal(caseActions(d,'2026-10-22').some(a=>a.key===key),false);
+  }
+ }
 });
