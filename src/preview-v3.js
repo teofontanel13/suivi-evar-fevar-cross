@@ -61,7 +61,7 @@ function detail(){
  el.querySelectorAll('[data-field]').forEach(e=>e.onchange=()=>{if(e.dataset.field==='reference'){const reference=e.value.trim();if(!reference){alert('La référence ne peut pas être vide.');render();return}if(hasDuplicateReference(records,reference,d.id)){alert('Cette référence existe déjà. Choisis une autre référence.');render();return}update(d.id,{reference});return}const name=e.dataset.field;const value=['surgeon','hospital'].includes(name)?normalizeChoice(e.value):e.value;update(d.id,{[name]:value})});
  $('#expand').onclick=()=>{expanded=!expanded;detail()};
  el.querySelectorAll('[data-step]').forEach(e=>e.onchange=()=>{setStep(d,e.dataset.step,e.checked,today());persist();render()});
- el.querySelectorAll('[data-date]').forEach(e=>e.onchange=()=>{if(e.value){d.steps[e.dataset.date]=e.value;if(e.dataset.date==='Sizing envoyé au chirurgien')delete d.lastRelance.sizing;if(e.dataset.date==='Devis envoyé')delete d.lastRelance.quote}persist();render()});
+ el.querySelectorAll('[data-date]').forEach(e=>e.onchange=()=>{if(e.value){d.steps[e.dataset.date]=e.value;const steps=WORKFLOWS[d.type]||[],idx=steps.indexOf(e.dataset.date);if(idx>=0&&idx+1<steps.length)delete d.lastRelance['step:'+steps[idx+1]];if(e.dataset.date==='Sizing envoyé au chirurgien')delete d.lastRelance.sizing;if(e.dataset.date==='Devis envoyé')delete d.lastRelance.quote}persist();render()});
  el.querySelectorAll('[data-relance]').forEach(e=>e.onclick=()=>{d.lastRelance[e.dataset.relance]=today();persist();render()});
  el.querySelectorAll('[data-relancedate]').forEach(e=>e.onchange=()=>{if(e.value)d.lastRelance[e.dataset.relancedate]=e.value;else delete d.lastRelance[e.dataset.relancedate];persist();render()});
  $('#calendar').onclick=()=>ics(d);
