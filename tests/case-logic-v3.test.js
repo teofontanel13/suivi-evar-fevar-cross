@@ -144,3 +144,17 @@ test('FEVAR CROSS after signed quote: no 3-day ancillary relance, only J-30 dead
   assert.equal(caseSeverity(d,'2026-11-26'),'red');
  }
 });
+
+test('standby pauses ordinary alerts and repeats surgeon followup every 20 calendar days',()=>{
+ const d=base('FEVAR');d.surgery='2026-11-16';d.steps['Scanner reçu']='2026-10-01';d.standbySince='2026-10-10';
+ let actions=caseActions(d,'2026-10-29');
+ assert.equal(actions.length,1);
+ assert.equal(actions[0].key,'standby');
+ assert.equal(actions[0].due,'2026-10-30');
+ assert.equal(caseSeverity(d,'2026-10-31'),'orange');
+ assert.equal(caseWaiting(d,'2026-10-31'),'Stand-by · suivi chirurgien');
+ d.lastRelance.standby='2026-10-31';
+ assert.equal(caseActions(d,'2026-11-01')[0].due,'2026-11-20');
+ delete d.standbySince;
+ assert.equal(caseActions(d,'2026-11-01').some(a=>a.key==='standby'),false);
+});
