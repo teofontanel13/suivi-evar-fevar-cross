@@ -108,3 +108,15 @@ test('each workflow transition starts a three-working-day reminder, then resets 
   }
  }
 });
+
+test('routine relance is orange, but missed logistic deadline is red',()=>{
+ const d=base('EVAR');d.surgery='2026-12-20';d.steps['Scanner reçu']='2026-10-16';
+ assert.equal(caseSeverity(d,'2026-10-22'),'orange');
+ assert.equal(caseSeverity(d,'2026-12-11'),'orange');
+ assert.equal(caseSeverity(d,'2026-12-14'),'red');
+ const f=base('FEVAR');f.surgery='2026-12-25';
+ assert.equal(caseSeverity(f,'2026-11-25'),'orange');
+ assert.equal(caseSeverity(f,'2026-11-26'),'red');
+ setStep(f,'Ancillaires envoyés',true,'2026-11-26');
+ assert.notEqual(caseSeverity(f,'2026-11-26'),'red');
+});
