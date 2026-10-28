@@ -96,7 +96,7 @@ test('next action follows workflow even when ancillary reminder is more urgent',
 test('each workflow transition starts a three-working-day reminder, then resets after a relance',()=>{
  for(const type of ['EVAR','FEVAR','CROSS']){
   const d=base(type);d.surgery='';
-  const steps=type==='EVAR'?['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien','UOR envoyé']:['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés'];
+  const steps=type==='EVAR'?['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien']:['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés'];
   for(let i=1;i<steps.length;i++){
    setStep(d,steps[i-1],true,'2026-10-16');
    const key='step:'+steps[i];
@@ -119,4 +119,16 @@ test('routine relance is orange, but missed logistic deadline is red',()=>{
  assert.equal(caseSeverity(f,'2026-11-26'),'red');
  setStep(f,'Ancillaires envoyés',true,'2026-11-26');
  assert.notEqual(caseSeverity(f,'2026-11-26'),'red');
+});
+
+test('EVAR after sizing validation has no three-day UOR relance; only J-7 logistics',()=>{
+ const d=base('EVAR');d.surgery='2026-12-20';
+ setStep(d,'Scanner reçu',true,'2026-10-01');
+ setStep(d,'Sizing envoyé au chirurgien',true,'2026-10-02');
+ setStep(d,'Sizing validé par le chirurgien',true,'2026-10-05');
+ assert.equal(caseActions(d,'2026-10-15').some(a=>a.key==='step:UOR envoyé'),false);
+ assert.equal(caseSeverity(d,'2026-10-15'),'green');
+ assert.equal(caseActions(d,'2026-12-11').find(a=>a.key==='logistics').due,'2026-12-11');
+ assert.equal(caseSeverity(d,'2026-12-11'),'orange');
+ assert.equal(caseSeverity(d,'2026-12-14'),'red');
 });
