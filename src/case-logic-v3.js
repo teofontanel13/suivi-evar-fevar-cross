@@ -24,7 +24,7 @@ export function caseActions(d,referenceDate){
   const blocked=d.type==='EVAR'&&!stepDone(d,'Sizing validé par le chirurgien');
   result.push({label:(blocked?'Validation sizing manquante · ':'')+deadlines.action,due:deadlines.reminder,limit:deadlines.limit,key:'logistics'});
  }
- return result.map(a=>({...a,level:alertLevel(a.due,referenceDate),hardLimitReached:Boolean(a.limit&&referenceDate>=a.limit)}));
+ return result.map(a=>({...a,level:alertLevel(a.due,referenceDate),hardLimitReached:Boolean(a.limit&&referenceDate>a.limit)}));
 }
 export const caseSeverity=(d,date)=>{const actions=caseActions(d,date);return actions.some(a=>a.key==='logistics'&&a.hardLimitReached)?'red':actions.some(a=>a.key!=='logistics'&&a.level!=='green')?'orange':actions.some(a=>a.key==='logistics'&&a.level!=='green')?'orange':'green'};
 export const caseWaiting=(d,date)=>d.archived?(d.archiveReason==='cancelled'?'Intervention annulée':'Intervention réalisée'):nextStep(d);
