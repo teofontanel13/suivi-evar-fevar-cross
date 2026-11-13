@@ -169,3 +169,8 @@ test('TEVAR follows EVAR workflow, sizing relances and J-7 UOR deadline',()=>{
  assert.equal(caseActions(d,'2026-12-11').find(a=>a.key==='logistics').due,'2026-12-11');
  assert.equal(caseSeverity(d,'2026-12-14'),'red');
 });
+
+test('chronological order prioritizes active cases and places standby last',()=>{
+ const cases=[{...base(),id:'standby',surgery:'2026-11-14',standbySince:'2026-11-01'},{...base(),id:'later',surgery:'2026-11-20'},{...base(),id:'soon',surgery:'2026-11-16'},{...base(),id:'undated',surgery:''}];
+ assert.deepEqual(sortedCases(cases,'2026-11-13').map(x=>x.id),['soon','later','undated','standby']);
+});
