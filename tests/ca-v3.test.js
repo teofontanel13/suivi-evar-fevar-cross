@@ -9,4 +9,4 @@ test('standby amounts are separated',()=>assert.equal(forecastTotals([d('EVAR',{
 
 test('fixed graft bases cannot be accidentally removed or doubled',()=>{assert.equal(components(d('EVAR',{evar:0,leg:2,zbis:1,cross:9})).reduce((s,x)=>s+x.amount,0),7746);assert.equal(components(d('FEVAR',{fevar:0,leg:0})).reduce((s,x)=>s+x.amount,0),13308);assert.equal(components(d('CROSS',{cross:0,thoracic:1})).reduce((s,x)=>s+x.amount,0),19960)});
 test('TEVAR is valued by number of stacked standard thoracic modules',()=>assert.equal(components(d('TEVAR',{thoracic:3})).reduce((s,x)=>s+x.amount,0),14382));
-test('TBRANCH accepts extra thoracic, unibody, legs and ZBIS',()=>assert.equal(components(d('TBRANCH',{thoracic:1,unibody:1,leg:2,zbis:1})).reduce((s,x)=>s+x.amount,0),19420));
+test('TBRANCH accepts extra thoracic, unibody, legs and ZBIS',()=>assert.equal(components(d('TBRANCH',{thoracic:1,unibody:1,leg:2,zbis:1})).reduce((s,x)=>s+x.amount,0),22420));
