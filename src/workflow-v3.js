@@ -1,12 +1,13 @@
 // V3 — règles métier indépendantes de l'interface et de Supabase.
 // Dates locales au format YYYY-MM-DD pour éviter les décalages UTC.
 export const WORKFLOWS = Object.freeze({
+  TBRANCH: ['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien','UOR envoyé'],
   TEVAR: ['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien','UOR envoyé'],
   EVAR: ['Scanner reçu','Sizing envoyé au chirurgien','Sizing validé par le chirurgien','UOR envoyé'],
   FEVAR: ['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés'],
   CROSS: ['Scanner reçu','Scanner envoyé au Planning Center','Graft plan reçu','Graft plan signé','Devis envoyé','Devis signé','Ancillaires envoyés']
 });
-export const DEADLINES = Object.freeze({EVAR:{action:'UOR envoyé',reminder:14,limit:7},TEVAR:{action:'UOR envoyé',reminder:14,limit:7},FEVAR:{action:'Ancillaires envoyés',reminder:30,limit:30},CROSS:{action:'Ancillaires envoyés',reminder:30,limit:30}});
+export const DEADLINES = Object.freeze({EVAR:{action:'UOR envoyé',reminder:14,limit:7},TEVAR:{action:'UOR envoyé',reminder:14,limit:7},TBRANCH:{action:'UOR envoyé',reminder:14,limit:7},FEVAR:{action:'Ancillaires envoyés',reminder:30,limit:30},CROSS:{action:'Ancillaires envoyés',reminder:30,limit:30}});
 const parseDate = date => {const [y,m,d]=date.split('-').map(Number);return new Date(y,m-1,d,12)};
 const formatDate = date => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
 const shift = (date,days) => {const d=parseDate(date);d.setDate(d.getDate()+days);return formatDate(d)};
