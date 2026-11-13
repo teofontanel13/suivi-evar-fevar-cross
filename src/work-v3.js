@@ -21,7 +21,7 @@ else {
   syncStatus.textContent='Dossiers chargés · Synchronisé';
   document.body.append(syncStatus);
   const setSync=(message,failed=false)=>{syncStatus.textContent=message;syncStatus.style.color=failed?'#b42318':'#176a52'};
-  window.__V3_WORK__={records:initial,save(records){
+  window.__V3_WORK__={records:initial,userId:user.id,save(records){
     const snapshot=structuredClone(records),current=++revision;
     setSync('Enregistrement…');
     queue=queue.then(async()=>{
