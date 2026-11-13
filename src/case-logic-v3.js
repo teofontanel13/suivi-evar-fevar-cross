@@ -18,9 +18,9 @@ export function caseActions(d,referenceDate){
  const workflow=WORKFLOWS[d.type]||[];
  for(let i=1;i<workflow.length;i++){
   const previous=workflow[i-1],step=workflow[i];
-  if((d.type==='EVAR'&&step==='UOR envoyé')||(['FEVAR','CROSS'].includes(d.type)&&step==='Ancillaires envoyés'))continue;
+  if((['EVAR','TEVAR'].includes(d.type)&&step==='UOR envoyé')||(['FEVAR','CROSS'].includes(d.type)&&step==='Ancillaires envoyés'))continue;
   if(!stepDone(d,previous)||stepDone(d,step))continue;
-  const legacyKey=d.type==='EVAR'&&step==='Sizing validé par le chirurgien'?'sizing':step==='Devis signé'?'quote':null;
+  const legacyKey=['EVAR','TEVAR'].includes(d.type)&&step==='Sizing validé par le chirurgien'?'sizing':step==='Devis signé'?'quote':null;
   const key='step:'+step;
   const last=d.lastRelance?.[key]||(legacyKey?d.lastRelance?.[legacyKey]:null);
   const label=legacyKey==='sizing'?'Relancer validation sizing':legacyKey==='quote'?'Relancer signature devis':'Relancer : '+step;
@@ -28,7 +28,7 @@ export function caseActions(d,referenceDate){
  }
  const deadlines=logisticDeadlines(d.type,d.surgery);
  if(deadlines&&!stepDone(d,deadlines.action)){
-  const blocked=d.type==='EVAR'&&!stepDone(d,'Sizing validé par le chirurgien');
+  const blocked=['EVAR','TEVAR'].includes(d.type)&&!stepDone(d,'Sizing validé par le chirurgien');
   result.push({label:(blocked?'Validation sizing manquante · ':'')+deadlines.action,due:d.type==='EVAR'?deadlines.limit:deadlines.reminder,limit:deadlines.limit,key:'logistics'});
  }
  return result.map(a=>({...a,level:alertLevel(a.due,referenceDate),hardLimitReached:Boolean(a.limit&&referenceDate>a.limit)}));
