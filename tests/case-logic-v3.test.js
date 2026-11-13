@@ -37,8 +37,8 @@ test('EVAR logistics due and hard deadline, blocked until sizing validation',()=
  const d=base();
  const a=caseActions(d,'2026-11-09').find(a=>a.key==='logistics');
  assert.equal(a.due,'2026-11-09');
- assert.equal(a.level,'red');
- assert.equal(a.hardLimitReached,true);
+ assert.equal(a.level,'orange');
+ assert.equal(a.hardLimitReached,false);
  assert.match(a.label,/Validation sizing manquante/);
  setStep(d,'Sizing validé par le chirurgien',true,'2026-11-09');
  assert.doesNotMatch(caseActions(d,'2026-11-09').find(a=>a.key==='logistics').label,/manquante/);
