@@ -29,7 +29,7 @@ export function caseActions(d,referenceDate){
  const deadlines=logisticDeadlines(d.type,d.surgery);
  if(deadlines&&!stepDone(d,deadlines.action)){
   const blocked=['EVAR','TEVAR','TBRANCH'].includes(d.type)&&!stepDone(d,'Sizing validé par le chirurgien');
-  result.push({label:(blocked?'Validation sizing manquante · ':'')+deadlines.action,due:d.type==='EVAR'?deadlines.limit:deadlines.reminder,limit:deadlines.limit,key:'logistics'});
+  result.push({label:(blocked?'Validation sizing manquante · ':'')+deadlines.action,due:['EVAR','TEVAR','TBRANCH'].includes(d.type)?deadlines.limit:deadlines.reminder,limit:deadlines.limit,key:'logistics'});
  }
  return result.map(a=>({...a,level:alertLevel(a.due,referenceDate),hardLimitReached:Boolean(a.limit&&referenceDate>a.limit)}));
 }
