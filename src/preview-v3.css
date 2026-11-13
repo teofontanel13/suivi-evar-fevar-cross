@@ -30,3 +30,5 @@ body:has(.v3){background:#f9f2f3}
 .v3-modal h2{margin-bottom:14px}
 .v3-modal label{margin-top:14px}
 .v3-modal .buttons button{width:auto}
+
+.v3 .ca-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:12px 0}.v3 .ca-item{display:flex;flex-direction:column;gap:5px}.v3 .ca-item input{max-width:120px}.v3 .ca-table{width:100%;border-collapse:collapse;margin:12px 0 24px;font-size:13px}.v3 .ca-table th,.v3 .ca-table td{padding:9px;border-bottom:1px solid #ddd;text-align:left}.v3 .ca-table td:last-child,.v3 .ca-table th:last-child{text-align:right}.v3 .panel:has(.ca-table){overflow-x:auto}.v3 .stat strong{font-size:clamp(16px,2vw,24px)}
