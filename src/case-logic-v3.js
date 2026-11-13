@@ -35,7 +35,7 @@ export function caseActions(d,referenceDate){
 }
 export const caseSeverity=(d,date)=>{const actions=caseActions(d,date);return actions.some(a=>a.key==='logistics'&&a.hardLimitReached)?'red':actions.some(a=>a.key!=='logistics'&&a.level!=='green')?'orange':actions.some(a=>a.key==='logistics'&&a.level!=='green')?'orange':'green'};
 export const caseWaiting=(d,date)=>d.standbySince&&!d.archived?'Stand-by · suivi chirurgien':d.archived?(d.archiveReason==='cancelled'?'Intervention annulée':'Intervention réalisée'):nextStep(d);
-export const sortedCases=(records,date)=>[...records].sort((a,b)=>(a.surgery||'9999-12-31').localeCompare(b.surgery||'9999-12-31')||({red:0,orange:1,green:2}[caseSeverity(a,date)]-{red:0,orange:1,green:2}[caseSeverity(b,date)]));
+export const sortedCases=(records,date)=>[...records].sort((a,b)=>Number(Boolean(a.standbySince))-Number(Boolean(b.standbySince))||(a.surgery||'9999-12-31').localeCompare(b.surgery||'9999-12-31')||({red:0,orange:1,green:2}[caseSeverity(a,date)]-{red:0,orange:1,green:2}[caseSeverity(b,date)]));
 export function setStep(d,step,checked,date){
  d.steps??={};d.lastRelance??={};
  if(checked)d.steps[step]=date;else delete d.steps[step];
