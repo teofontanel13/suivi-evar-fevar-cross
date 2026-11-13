@@ -158,3 +158,14 @@ test('standby pauses ordinary alerts and repeats surgeon followup every 20 calen
  delete d.standbySince;
  assert.equal(caseActions(d,'2026-11-01').some(a=>a.key==='standby'),false);
 });
+
+test('TEVAR follows EVAR workflow, sizing relances and J-7 UOR deadline',()=>{
+ const d=base('TEVAR');d.surgery='2026-12-20';
+ setStep(d,'Scanner reçu',true,'2026-10-01');
+ setStep(d,'Sizing envoyé au chirurgien',true,'2026-10-02');
+ assert.equal(caseActions(d,'2026-10-06').some(a=>a.key==='step:Sizing validé par le chirurgien'),true);
+ setStep(d,'Sizing validé par le chirurgien',true,'2026-10-05');
+ assert.equal(caseActions(d,'2026-10-15').some(a=>a.key.startsWith('step:')),false);
+ assert.equal(caseActions(d,'2026-12-11').find(a=>a.key==='logistics').due,'2026-12-11');
+ assert.equal(caseSeverity(d,'2026-12-14'),'red');
+});
