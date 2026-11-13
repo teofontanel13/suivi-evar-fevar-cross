@@ -32,3 +32,15 @@ body:has(.v3){background:#f9f2f3}
 .v3-modal .buttons button{width:auto}
 
 .v3 .ca-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:12px 0}.v3 .ca-item{display:flex;flex-direction:column;gap:5px}.v3 .ca-item input{max-width:120px}.v3 .ca-table{width:100%;border-collapse:collapse;margin:12px 0 24px;font-size:13px}.v3 .ca-table th,.v3 .ca-table td{padding:9px;border-bottom:1px solid #ddd;text-align:left}.v3 .ca-table td:last-child,.v3 .ca-table th:last-child{text-align:right}.v3 .panel:has(.ca-table){overflow-x:auto}.v3 .stat strong{font-size:clamp(16px,2vw,24px)}
+
+/* Dossier en fenêtre centrée : la liste conserve toute la largeur. */
+.v3 .v3-cases-layout{display:block}
+.v3 .v3-cases-layout #cases{width:100%;max-width:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;align-items:start}
+.v3 .v3-cases-layout .case{margin:0;cursor:pointer}
+.v3-case-overlay{position:fixed;inset:0;z-index:1100;background:rgba(20,31,43,.62);align-items:center;justify-content:center;padding:16px}
+.v3-case-dialog{background:#fff;width:min(100%,980px);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;border-radius:16px;box-shadow:0 22px 70px rgba(0,0,0,.3);overflow:hidden}
+.v3-case-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px;background:#fff;border-bottom:1px solid #e6e6e6;font-weight:700;flex-shrink:0}
+.v3-case-dialog-head button{width:auto;margin:0}
+.v3-case-dialog #detail{overflow-y:auto;min-height:0;max-height:none;flex:1;padding:20px 24px;box-shadow:none;border-radius:0}
+.v3-case-dialog #detail .fields{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+@media(max-width:700px){.v3-case-overlay{padding:0}.v3-case-dialog{width:100%;height:100dvh;max-height:100dvh;border-radius:0}.v3-case-dialog #detail{padding:16px}.v3 .v3-cases-layout #cases{grid-template-columns:1fr}}
