@@ -1,0 +1,52 @@
+.v3 .preview-banner{background:#fff0dc;color:#8a4808;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700}.v3 .stat{text-align:left;cursor:pointer}.v3 .stat.active{outline:2px solid #176a94}.v3 .signal{font-size:11px;border-radius:6px;padding:4px 7px}.v3 .signal.red{background:#fee2e2;color:#991b1b}.v3 .signal.orange{background:#ffedd5;color:#9a3412}.v3 .signal.green{background:#dcfce7;color:#166534}.v3 .case{padding:12px;margin-bottom:6px}.v3 .case small{margin:5px 0}.v3 .step{align-items:start}.v3 .step input[type=date]{margin-top:5px;max-width:160px;padding:4px;font-size:12px}.v3 .action .buttons{margin-top:8px}.v3 .action input[type=date]{max-width:160px}.v3 .notice{margin-top:8px}.v3 .toolbar>input{flex:1;min-width:200px}.v3 .toolbar>select{width:auto}.v3 .section button{margin-top:7px}@media(max-width:700px){.v3 header{display:block}.v3 .preview-banner{display:inline-block;margin-top:12px}}
+/* Identité visuelle V3 : rouge Cook et marque centrée en haut de l'application. */
+body:has(.v3){background:#b90925}
+.v3{max-width:1240px}
+.v3 header{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px;margin:0 0 24px;padding:30px 18px 14px;color:#fff}
+.v3 header h1{font-size:22px;color:#fff}
+.v3 header p{color:#ffe0e5}
+.v3 .cook-brand{width:min(290px,80vw);border:3px solid #fff;padding:10px 16px 6px;color:#fff;line-height:1}
+.v3 .cook-wordmark{font-family:Georgia,'Times New Roman',serif;font-size:clamp(42px,6vw,65px);letter-spacing:1px;position:relative}
+.v3 .cook-registered{font-family:Arial,sans-serif;font-size:12px;position:absolute;top:7px;margin-left:2px}
+.v3 .cook-medical{font-family:Arial,sans-serif;font-weight:700;font-size:22px;letter-spacing:7px;text-align:right;margin-top:5px;border-top:2px solid #fff;padding-top:5px}
+.v3 .preview-banner{background:#fff;color:#9e0821}
+.v3 .footer{color:#ffe0e5;text-align:center}
+.v3 .stat,.v3 .panel,.v3 .case{box-shadow:0 5px 15px rgba(40,0,10,.1)}
+@media(max-width:700px){.v3 header{display:flex;align-items:center}.v3 .preview-banner{margin-top:0}}
+
+/* Ajustement : fond rouge très pâle, proche de la luminosité du bleu V2. */
+body:has(.v3){background:#f9f2f3}
+.v3 header{color:#21384a;padding:18px 12px 10px;gap:8px}
+.v3 header h1{color:#21384a}
+.v3 header p{color:#657789}
+.v3 .cook-brand{color:#ce0d1c;border-color:#ce0d1c;width:min(230px,70vw);padding:7px 12px 5px}
+.v3 .cook-wordmark{font-size:clamp(36px,5vw,52px)}
+.v3 .cook-medical{font-size:17px;letter-spacing:5px;border-top-color:#ce0d1c}
+.v3 .preview-banner{background:#fce7e9;color:#a20d21}
+.v3 .footer{color:#657789}
+
+.v3-modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(23,36,49,.48);display:flex;align-items:center;justify-content:center;padding:16px}
+.v3-modal{background:white;border-radius:16px;padding:24px;width:min(100%,440px);box-shadow:0 16px 45px rgba(0,0,0,.22)}
+.v3-modal h2{margin-bottom:14px}
+.v3-modal label{margin-top:14px}
+.v3-modal .buttons button{width:auto}
+
+.v3 .ca-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:12px 0}.v3 .ca-item{display:flex;flex-direction:column;gap:5px}.v3 .ca-item input{max-width:120px}.v3 .ca-table{width:100%;border-collapse:collapse;margin:12px 0 24px;font-size:13px}.v3 .ca-table th,.v3 .ca-table td{padding:9px;border-bottom:1px solid #ddd;text-align:left}.v3 .ca-table td:last-child,.v3 .ca-table th:last-child{text-align:right}.v3 .panel:has(.ca-table){overflow-x:auto}.v3 .stat strong{font-size:clamp(16px,2vw,24px)}
+
+/* Dossier en fenêtre centrée : la liste conserve toute la largeur. */
+.v3 .v3-cases-layout{display:block}
+.v3 .v3-cases-layout #cases{width:100%;max-width:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;align-items:start}
+.v3 .v3-cases-layout .case{margin:0;cursor:pointer}
+.v3-case-overlay{position:fixed;inset:0;z-index:1100;background:rgba(20,31,43,.62);align-items:center;justify-content:center;padding:16px}
+.v3-case-dialog{background:#fff;width:min(100%,980px);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;border-radius:16px;box-shadow:0 22px 70px rgba(0,0,0,.3);overflow:hidden}
+.v3-case-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px;background:#fff;border-bottom:1px solid #e6e6e6;font-weight:700;flex-shrink:0}
+.v3-case-dialog-head button{width:auto;margin:0}
+.v3-case-dialog #detail{overflow-y:auto;min-height:0;max-height:none;flex:1;padding:20px 24px;box-shadow:none;border-radius:0}
+.v3-case-dialog #detail .fields{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+@media(max-width:700px){.v3-case-overlay{padding:0}.v3-case-dialog{width:100%;height:100dvh;max-height:100dvh;border-radius:0}.v3-case-dialog #detail{padding:16px}.v3 .v3-cases-layout #cases{grid-template-columns:1fr}}
+
+.v3-pdf-dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;min-height:160px;padding:22px;border:2px dashed #b8a8ad;border-radius:12px;background:#fcf9fa;text-align:center;transition:background .15s,border-color .15s}
+.v3-pdf-dropzone.is-dragging{background:#fce5e9;border-color:#b90925}
+.v3-pdf-dropzone span{font-size:13px;color:#586573}
+.v3-pdf-choose{display:inline-block;cursor:pointer;padding:9px 14px;border-radius:8px;background:#b90925;color:white;font-weight:600}
+.v3-pdf-dropzone input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
