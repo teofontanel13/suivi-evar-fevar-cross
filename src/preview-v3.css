@@ -44,3 +44,9 @@ body:has(.v3){background:#f9f2f3}
 .v3-case-dialog #detail{overflow-y:auto;min-height:0;max-height:none;flex:1;padding:20px 24px;box-shadow:none;border-radius:0}
 .v3-case-dialog #detail .fields{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 @media(max-width:700px){.v3-case-overlay{padding:0}.v3-case-dialog{width:100%;height:100dvh;max-height:100dvh;border-radius:0}.v3-case-dialog #detail{padding:16px}.v3 .v3-cases-layout #cases{grid-template-columns:1fr}}
+
+.v3-pdf-dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;min-height:160px;padding:22px;border:2px dashed #b8a8ad;border-radius:12px;background:#fcf9fa;text-align:center;transition:background .15s,border-color .15s}
+.v3-pdf-dropzone.is-dragging{background:#fce5e9;border-color:#b90925}
+.v3-pdf-dropzone span{font-size:13px;color:#586573}
+.v3-pdf-choose{display:inline-block;cursor:pointer;padding:9px 14px;border-radius:8px;background:#b90925;color:white;font-weight:600}
+.v3-pdf-dropzone input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
